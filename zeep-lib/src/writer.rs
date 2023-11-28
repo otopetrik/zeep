@@ -790,6 +790,8 @@ impl FileWriter {
     fn shield_reserved_names<'a>(&self, type_name: &'a str) -> &'a str {
         match type_name {
             "type" => "rs_type",
+            "return" => "rs_return",
+            "do" => "rs_do",
             other => other,
         }
     }
