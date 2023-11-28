@@ -1043,7 +1043,9 @@ impl FileWriter {
         let name = match name {
             None => match &msg {
                 None => String::new(),
-                Some(msg) => to_pascal_case(msg.as_str()),
+                // Some(msg) => to_pascal_case(msg.as_str()),
+                // TODO: cleanup ?
+                Some(msg) => self.get_some_attribute_as_string(node, "message").unwrap().strip_prefix("tns:").unwrap().to_string(),
             },
             Some(name) => name,
         };
