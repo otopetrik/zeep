@@ -186,6 +186,8 @@ impl FileWriter {
             use yaserde_derive::{YaSerialize, YaDeserialize};
             use std::io::{Read, Write};
             use log::{warn, debug};
+
+            use self::types::*;
             
             pub const SOAP_ENCODING: &str = "http://www.w3.org/2003/05/soap-encoding";
             "#,
