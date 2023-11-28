@@ -1039,6 +1039,7 @@ impl FileWriter {
             .map(|m| self.fetch_type(&m));
 
         let name = self.get_some_attribute_as_string(node, "name");
+        println!("map_name_message: msg: {:?}, name {:?}, node {:?}", msg, name, node);
 
         let name = match name {
             None => match &msg {
@@ -1093,6 +1094,10 @@ impl FileWriter {
             output_type: some_output,
             fault_type: some_fault,
         };
+
+        println!("port name {0}", port_type.name);
+        println!("input {:?}", port_type.input_type);
+        println!("output {:?}", port_type.output_type);
 
         let input_type_element = match &port_type.input_type {
             Some((type_name, Some(message_type_name))) => {
@@ -1293,6 +1298,7 @@ impl FileWriter {
 
         let soap_wrapper_in = if has_input {
             if !self.have_seen_type(&input_soap_name, parent) {
+                println!("in: isn {0}, klass {1}, inputtype: {2}, msg: {3}", input_soap_name, input_type, input_type, message_type_name);
                 Option::Some(format!(
                     r#"#[derive(Debug, Default, YaSerialize, YaDeserialize)]
                     pub struct {0} {{
@@ -1325,6 +1331,7 @@ impl FileWriter {
                 }
                 _ => (String::new(), String::new(), String::new(), false),
             };
+        println!("output_type {0}, output_soap_name {1}, output_xml_type {2}", output_type, output_soap_name, output_xml_type);
 
         let (_fault_type, _fault_xml_type, fault_soap_name, has_fault) = match &port_type.fault_type
         {
@@ -1356,6 +1363,11 @@ impl FileWriter {
 
         let soap_wrapper_out = if has_output {
             if !self.have_seen_type(&output_soap_name, parent) {
+
+                println!("out: osn {0}, klass {1}, xml: {2}", output_soap_name, output_type, output_xml_type);
+                // TODO: here, '{3}' is wrong rename... uses Rust struct name instead of WSDL
+                // name...
+                // NOTE: map_name_message change is required for this to work...
                 Option::Some(format!(
                     r#"#[derive(Debug, Default, YaSerialize, YaDeserialize)]
                     pub struct {0} {{
