@@ -36,6 +36,8 @@ const VERSION: &str = env!("CARGO_PKG_VERSION");
 const DEFAULT_NS_PREFIX: &str = "tns";
 const IMPORT_PREFIX: &str = "nsi";
 
+const SOAP_ENV: &str = "SOAP-ENV";
+
 pub struct FileWriter {
     base_path: PathBuf,
     writer: Option<Box<dyn std::io::Write>>,
@@ -200,8 +202,8 @@ impl FileWriter {
         let header = Element::new("Header", ElementType::Struct);
         let mut soap_fault = Element::new("SoapFault", ElementType::Struct);
         soap_fault.xml_name = Option::Some("Fault".to_string());
-        soap_fault.add_ns("soapenv", "http://schemas.xmlsoap.org/soap/envelope/");
-        soap_fault.prefix = Option::Some("soapenv".to_string());
+        soap_fault.add_ns(SOAP_ENV, "http://schemas.xmlsoap.org/soap/envelope/");
+        soap_fault.prefix = Option::Some(SOAP_ENV.to_string());
         soap_fault.add(Element::new_field(
             "fault_code",
             "faultcode",
@@ -1174,8 +1176,8 @@ impl FileWriter {
 
         let mut e = Element::new(&soap_fault_name, ElementType::Struct);
         e.xml_name = Option::Some("Fault".to_string());
-        e.add_ns("soapenv", "http://schemas.xmlsoap.org/soap/envelope/");
-        e.prefix = Option::Some("soapenv".to_string());
+        e.add_ns(SOAP_ENV, "http://schemas.xmlsoap.org/soap/envelope/");
+        e.prefix = Option::Some(SOAP_ENV.to_string());
 
         let fault_code = Element::new_field("fault_code", "faultcode", "String", true);
         let fault_string = Element::new_field("fault_string", "faultstring", "String", true);
@@ -1200,11 +1202,11 @@ impl FileWriter {
             r#"#[derive(Debug, Default, YaSerialize, YaDeserialize)]
         #[yaserde(
             rename = "Envelope",
-            namespace = "soapenv: http://schemas.xmlsoap.org/soap/envelope/",
-            prefix = "soapenv"
+            namespace = "{4}: http://schemas.xmlsoap.org/soap/envelope/",
+            prefix = "{4}"
         )]
         pub struct {0}SoapEnvelope {{
-            #[yaserde(rename = "encodingStyle", prefix = "soapenv", attribute)]
+            #[yaserde(rename = "encodingStyle", prefix = "{4}", attribute)]
             pub encoding_style: String,
             #[yaserde(rename = "{3}", prefix = "xmlns", attribute)]
             pub tnsattr: Option<String>,
@@ -1212,9 +1214,9 @@ impl FileWriter {
             pub urnattr: Option<String>,
             #[yaserde(rename = "xsi", prefix = "xmlns", attribute)]
             pub xsiattr: Option<String>,
-            #[yaserde(rename = "Header", prefix = "soapenv")]
+            #[yaserde(rename = "Header", prefix = "{4}")]
             pub header: Option<Header>,
-            #[yaserde(rename = "Body", prefix = "soapenv")]
+            #[yaserde(rename = "Body", prefix = "{4}")]
             pub body: {1},
         }}
         
@@ -1231,7 +1233,7 @@ impl FileWriter {
             }}
         }}        
         "#,
-            soap_name, body_type, tns, self.ns_prefix
+            soap_name, body_type, tns, self.ns_prefix, SOAP_ENV
         )
     }
 
