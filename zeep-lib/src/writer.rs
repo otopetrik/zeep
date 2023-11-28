@@ -810,16 +810,14 @@ impl FileWriter {
             let mut element = Element::new(to_pascal_case(name).as_str(), ElementType::Struct);
             element.xml_name = Option::Some(name.to_string());
 
-            let maybe_part = node.children().find(|child| child.has_tag_name("part"));
-
-            if let Some(part) = maybe_part {
+            node.children().filter(|child| child.has_tag_name("part")).for_each(|part| {
                 if let Some(type_name) = self.get_some_attribute(&part, "type") {
                     // simple type
                     self.print_simple_part(name, &part, type_name, &mut element);
                 } else {
                     self.print_element_part(name, &part, &mut element);
                 }
-            }
+            });
 
             if !self.have_seen_type(&element.name, _parent) {
                 _parent.add(element);
