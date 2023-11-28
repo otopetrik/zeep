@@ -627,6 +627,8 @@ impl FileWriter {
 
         let maybe_sequence = node.children().find(|child| child.has_tag_name("sequence"));
 
+        let maybe_all = node.children().find(|child| child.has_tag_name("all"));
+
         let maybe_complex = node
             .children()
             .find(|child| child.has_tag_name("complexContent"));
@@ -639,6 +641,10 @@ impl FileWriter {
 
         if let Some(sequence) = maybe_sequence {
             self.print_sequence(&sequence, &mut Some(&mut element), module)?;
+        }
+
+        if let Some(all) = maybe_all {
+            self.print_all(&all, &mut Some(&mut element), module)?;
         }
 
         if let Some(complex) = maybe_complex {
@@ -700,6 +706,22 @@ impl FileWriter {
     }
 
     fn print_sequence(
+        &mut self,
+        node: &Node,
+        parent: &mut Option<&mut Element>,
+        module: &mut Element,
+    ) -> WriterResult<()> {
+        node.children().try_for_each(|child| {
+            if let Some(p) = parent {
+                self.print_element(&child, false, &mut Some(p), module)
+            } else {
+                Ok(())
+            }
+        })?;
+        Ok(())
+    }
+
+    fn print_all(
         &mut self,
         node: &Node,
         parent: &mut Option<&mut Element>,
